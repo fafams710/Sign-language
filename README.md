@@ -50,7 +50,7 @@ Webcam Input
   -> Sign Classifier          (trained LSTM / GRU / 1D CNN / MLP)
   -> Prediction Smoothing     (confidence + stability)
   -> Token Buffer             (recognized sign tokens)
-  -> Grammar Module           (rule-based or optional LLM)
+  -> Grammar Module           (rule-based templates)
   -> English Text Output
   -> Streamlit UI Display     (preview, predicted sign, confidence, sentence)
 ```
@@ -91,14 +91,16 @@ Vocabulary & Scope Lock
 | Language | Python |
 | Computer vision | MediaPipe |
 | Video / data processing | OpenCV, NumPy, Pandas |
-| ML framework | PyTorch *or* TensorFlow |
+| ML framework | PyTorch |
 | Classical baselines / metrics | scikit-learn |
 | Visualization | Matplotlib, Seaborn |
 | User interface | Streamlit |
-| Grammar layer (optional) | Free LLM (Gemini API / OpenRouter / local small model) with rule-based fallback |
+| Grammar layer | Rule-based templates |
 
-The LLM is used **only** for grammar correction and sentence generation. It is never
-responsible for recognizing signs from video.
+The demo uses a **rule-based** grammar module to convert recognized sign tokens into
+readable English sentences. An optional free-LLM grammar layer (Gemini API / OpenRouter /
+local small model) is noted as **future work**; if added, an LLM would be used **only** for
+grammar correction and sentence generation, never for recognizing signs from video.
 
 ---
 
@@ -123,7 +125,7 @@ Sign-language/
     preprocess.py             # normalization, sequence preparation
     train.py                  # model training
     predict.py               # real-time inference, smoothing
-    grammar.py                # rule-based / LLM sentence generation
+    grammar.py                # rule-based sentence generation
     utils.py
   models/
     sign_classifier.pt
@@ -151,8 +153,8 @@ Sign-language/
 | 2-4 | Dataset collection | Custom dataset + preprocessing pipeline |
 | 4-6 | Baseline classifier | First trained sign-recognition model |
 | 6-8 | Real-time prediction | Webcam-to-sign prediction integration |
-| 8-9 | Text buffer | Recognized tokens + basic sentence output |
-| 9-10 | Optional LLM grammar module | Grammar-assisted English generation |
+| 8-9 | Text buffer + rule-based grammar | Recognized tokens + rule-based English sentences |
+| 9-10 | Grammar refinement (LLM optional, future) | Improved sentence templates; LLM layer if time permits |
 | 10-12 | UI & demo polish | Stable Streamlit demo interface |
 | 12-14 | Evaluation | Accuracy, latency, confusion matrix, documentation |
 | 15-16 | Final defense prep | Final report, slides, rehearsed demo |
@@ -200,8 +202,7 @@ streamlit run app.py
 ```
 
 Planned `requirements.txt`: `opencv-python`, `mediapipe`, `numpy`, `pandas`,
-`scikit-learn`, `matplotlib`, `streamlit`, `torch` (or `tensorflow`), `requests`,
-`python-dotenv`.
+`scikit-learn`, `matplotlib`, `seaborn`, `streamlit`, `torch`.
 
 ---
 
@@ -212,7 +213,7 @@ Planned `requirements.txt`: `opencv-python`, `mediapipe`, `numpy`, `pandas`,
 | Project Lead / Integrator | Schedule, integration, GitHub, final demo coordination |
 | Computer Vision Developer | Webcam capture, MediaPipe landmarks, feature extraction |
 | ML Developer | Classifier training, accuracy evaluation, model improvement |
-| Backend / LLM Developer | Grammar module, API integration, text buffer, fallback rules |
+| Backend Developer | Rule-based grammar module, text buffer, sentence templates |
 | UI / Documentation Lead | Streamlit UI, report, diagrams, presentation materials |
 
 ---
