@@ -27,3 +27,9 @@ reports/figures/*
 
 # Private data directory (never commit)
 DO NOT PUSH, DATA/
+
+# MediaPipe model binary (user-provided, never committed)
+*.task
+
+# Captured / benchmark landmark output
+captured_landmarks/
