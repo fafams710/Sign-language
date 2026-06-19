@@ -61,12 +61,20 @@ Webcam Input
 Vocabulary & Scope Lock
   -> Record Videos            (5-10 signers, 10-20 samples/sign)
   -> Landmark Extraction      (MediaPipe)
-  -> Preprocessing            (normalize, pad/trim, fixed-length sequences)
-  -> Train / Val / Test Split (70 / 15 / 15)
+  -> Preprocessing            (normalize, pad/trim, fixed-length sequences)   [implemented]
+  -> Train / Val / Test Split (70 / 15 / 15)                                  [implemented]
   -> Model Training           (LSTM / GRU / 1D CNN / MLP)
   -> Evaluation               (accuracy, F1, confusion matrix, latency)
   -> Export Trained Model     (sign_classifier.pt, label_encoder.pkl)
 ```
+
+The preprocessing and split steps are implemented in `src/preprocess.py`: it reads a
+directory-per-label dataset of recorded landmark captures (`data/landmarks/<SIGN>/`,
+folder name matching `VOCABULARY`), reuses the wrist-relative normalization from
+`src/landmarks.py`, builds fixed-length sequences (`SEQUENCE_LENGTH = 30` frames, with
+center-trim when longer and edge-repeat post-pad when shorter), and produces a reproducible
+70/15/15 train/val/test split (seed 42, stratified with a non-stratified fallback for very
+small classes). Model training, inference, and grammar are still stubs.
 
 ---
 
@@ -124,11 +132,13 @@ rt-to-asl-fafams/
   src/
     camera.py                 # webcam capture / frame loop     (implemented)
     landmarks.py              # MediaPipe HandLandmarker wrapper (implemented)
-    preprocess.py             # normalization, sequence preparation (stub)
+    preprocess.py             # normalization, sequence preparation (implemented)
     train.py                  # model training                  (stub)
     predict.py                # real-time inference, smoothing  (stub)
     grammar.py                # rule-based sentence generation  (stub)
     utils.py                  # shared helpers + VOCABULARY (source of truth)
+  tests/
+    test_preprocess.py        # preprocessing unit tests
   tools/
     capture_demo.py           # interactive landmark capture/record viewer
   models/
@@ -144,10 +154,13 @@ rt-to-asl-fafams/
     final_report.tex
 ```
 
-> Phase 0 (scaffold) is complete and Phase 1 (webcam + landmark prototype) is in progress:
-> `src/camera.py`, `src/landmarks.py`, `benchmark.py`, and `tools/capture_demo.py` carry
-> working logic. Modules marked *(stub)* are docstrings/TODOs only and land in later phases.
-> The MediaPipe binary `models/hand_landmarker.task` is user-provided and not committed.
+> Phase 0 (scaffold) and Phase 1 (webcam + landmark prototype) are complete, and Phase 2
+> (the preprocessing pipeline) is implemented: `src/camera.py`, `src/landmarks.py`,
+> `src/preprocess.py`, `benchmark.py`, and `tools/capture_demo.py` carry working logic,
+> with `tests/test_preprocess.py` covering the preprocessing pipeline. Modules marked
+> *(stub)* (`train.py`, `predict.py`, `grammar.py`, `app.py`) are docstrings/TODOs only and
+> land in later phases. The MediaPipe binary `models/hand_landmarker.task` is user-provided
+> and not committed.
 
 ---
 
