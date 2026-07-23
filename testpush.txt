@@ -1,2 +1,0 @@
-user.name should be fafams710
-user.email should aparbo710@gmail.com
