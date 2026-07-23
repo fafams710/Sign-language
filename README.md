@@ -28,7 +28,7 @@ real-time inference, and sentence generation into a single usable prototype.
 | **Primary goal** | Real-time ASL sign recognition from webcam input |
 | **Output** | English text sentence generation |
 | **Target users** | University students and academic communication contexts |
-| **Vocabulary** | ~20-30 predefined academic/classroom signs |
+| **Vocabulary** | 25 predefined academic/classroom signs |
 | **Project type** | Working software prototype (one-semester capstone) |
 
 ---
@@ -61,12 +61,20 @@ Webcam Input
 Vocabulary & Scope Lock
   -> Record Videos            (5-10 signers, 10-20 samples/sign)
   -> Landmark Extraction      (MediaPipe)
-  -> Preprocessing            (normalize, pad/trim, fixed-length sequences)
-  -> Train / Val / Test Split (70 / 15 / 15)
+  -> Preprocessing            (normalize, pad/trim, fixed-length sequences)   [implemented]
+  -> Train / Val / Test Split (70 / 15 / 15)                                  [implemented]
   -> Model Training           (LSTM / GRU / 1D CNN / MLP)
   -> Evaluation               (accuracy, F1, confusion matrix, latency)
   -> Export Trained Model     (sign_classifier.pt, label_encoder.pkl)
 ```
+
+The preprocessing and split steps are implemented in `src/preprocess.py`: it reads a
+directory-per-label dataset of recorded landmark captures (`data/landmarks/<SIGN>/`,
+folder name matching `VOCABULARY`), reuses the wrist-relative normalization from
+`src/landmarks.py`, builds fixed-length sequences (`SEQUENCE_LENGTH = 30` frames, with
+center-trim when longer and edge-repeat post-pad when shorter), and produces a reproducible
+70/15/15 train/val/test split (seed 42, stratified with a non-stratified fallback for very
+small classes). Model training, inference, and grammar are still stubs.
 
 ---
 
@@ -104,32 +112,39 @@ grammar correction and sentence generation, never for recognizing signs from vid
 
 ---
 
-## Planned Repository Structure
+## Repository Structure
 
 ```
-Sign-language/
+rt-to-asl-fafams/
   README.md
+  ROADMAP.md
   requirements.txt
-  app.py                      # Streamlit entry point
+  app.py                      # Streamlit entry point          (stub)
+  benchmark.py                # headless frame-rate / stability benchmark
   data/
-    raw_videos/               # recorded sign clips
-    landmarks/                # extracted landmark coordinates
-    processed/                # normalized, fixed-length sequences
+    raw_videos/               # recorded sign clips             (gitignored contents)
+    landmarks/                # extracted landmark coordinates  (gitignored contents)
+    processed/                # normalized, fixed-length sequences (gitignored contents)
   notebooks/
     exploration.ipynb
     training.ipynb
     evaluation.ipynb
   src/
-    camera.py                 # webcam capture / frame loop
-    landmarks.py              # MediaPipe landmark extraction
-    preprocess.py             # normalization, sequence preparation
-    train.py                  # model training
-    predict.py               # real-time inference, smoothing
-    grammar.py                # rule-based sentence generation
-    utils.py
+    camera.py                 # webcam capture / frame loop     (implemented)
+    landmarks.py              # MediaPipe HandLandmarker wrapper (implemented)
+    preprocess.py             # normalization, sequence preparation (implemented)
+    train.py                  # model training                  (stub)
+    predict.py                # real-time inference, smoothing  (stub)
+    grammar.py                # rule-based sentence generation  (stub)
+    utils.py                  # shared helpers + VOCABULARY (source of truth)
+  tests/
+    test_preprocess.py        # preprocessing unit tests
+  tools/
+    capture_demo.py           # interactive landmark capture/record viewer
   models/
-    sign_classifier.pt
-    label_encoder.pkl
+    hand_landmarker.task      # user-provided MediaPipe asset   (gitignored)
+    sign_classifier.pt        # trained model                   (gitignored)
+    label_encoder.pkl         # label encoder                   (gitignored)
   reports/
     figures/
     confusion_matrix.png
@@ -139,8 +154,13 @@ Sign-language/
     final_report.tex
 ```
 
-> This structure is the target layout. The repository currently contains the project README
-> only; modules and folders are added as each development phase begins.
+> Phase 0 (scaffold) and Phase 1 (webcam + landmark prototype) are complete, and Phase 2
+> (the preprocessing pipeline) is implemented: `src/camera.py`, `src/landmarks.py`,
+> `src/preprocess.py`, `benchmark.py`, and `tools/capture_demo.py` carry working logic,
+> with `tests/test_preprocess.py` covering the preprocessing pipeline. Modules marked
+> *(stub)* (`train.py`, `predict.py`, `grammar.py`, `app.py`) are docstrings/TODOs only and
+> land in later phases. The MediaPipe binary `models/hand_landmarker.task` is user-provided
+> and not committed.
 
 ---
 
@@ -179,9 +199,6 @@ conditions"* — do not claim general ASL translation accuracy.
 
 ## Getting Started
 
-> Setup instructions are preliminary and will be finalized once the ML framework is locked
-> and `requirements.txt` is committed.
-
 ```bash
 # 1. Clone
 git clone https://github.com/fafams710/Sign-language.git
@@ -194,15 +211,27 @@ python -m venv .venv
 # macOS / Linux
 source .venv/bin/activate
 
-# 3. Install dependencies (once requirements.txt is available)
+# 3. Install dependencies
 pip install -r requirements.txt
 
-# 4. Run the demo (once app.py is available)
+# 4. Provide the MediaPipe asset (required by the landmark modules)
+#    Download 'hand_landmarker.task' and place it at models/hand_landmarker.task
+
+# 5. Try the Phase 1 tooling
+python benchmark.py            # headless frame-rate / stability check (no camera)
+python -m tools.capture_demo   # interactive landmark capture (needs a webcam)
+
+# 6. Run the demo (once the inference pipeline + app.py are implemented)
 streamlit run app.py
 ```
 
-Planned `requirements.txt`: `opencv-python`, `mediapipe`, `numpy`, `pandas`,
-`scikit-learn`, `matplotlib`, `seaborn`, `streamlit`, `torch`.
+Current `requirements.txt`: `opencv-python`, `mediapipe`, `numpy`, `pandas`,
+`scikit-learn`, `matplotlib`, `seaborn`, `streamlit`, `torch`, `requests`,
+`python-dotenv`.
+
+> **Note:** `models/hand_landmarker.task` is user-provided and gitignored, so `benchmark.py`
+> and `tools/capture_demo.py` require you to download it first. `app.py` is still a stub, so
+> `streamlit run app.py` will not yet show the full demo.
 
 ---
 
