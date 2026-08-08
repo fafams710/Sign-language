@@ -14,11 +14,11 @@ Real-Time Limited-Vocabulary ASL-to-Text Recognition System with grammar-assiste
 
 | Phase | Weeks | Main Output |
 |---|---|---|
-| Phase 0 - Setup & Scope Lock (current, completed) | 1 | Final vocabulary, repository scaffold, architecture, schedule |
-| Phase 1 - Webcam & Landmark Prototype | 1-2 | Real-time hand landmark detection |
-| Phase 2 - Dataset Collection | 2-4 | Custom dataset + preprocessing pipeline |
-| Phase 3 - Baseline Classifier | 4-6 | First trained sign-recognition model |
-| Phase 4 - Real-Time Prediction | 6-8 | Webcam-to-sign prediction integration |
+| Phase 0 - Setup & Scope Lock (completed) | 1 | Final vocabulary, repository scaffold, architecture, schedule |
+| Phase 1 - Webcam & Landmark Prototype (completed) | 1-2 | Real-time hand landmark detection |
+| Phase 2 - Dataset Collection (preprocessing pipeline complete; dataset collection in progress) | 2-4 | Custom dataset + preprocessing pipeline |
+| Phase 3 - Baseline Classifier (training code complete; awaiting full dataset) | 4-6 | First trained sign-recognition model |
+| Phase 4 - Real-Time Prediction (current) | 6-8 | Webcam-to-sign prediction integration |
 | Phase 5 - Text Buffer + Rule-Based Grammar | 8-9 | Recognized tokens + rule-based English sentences |
 | Phase 6 - Grammar Refinement (LLM optional, future) | 9-10 | Improved templates; optional LLM layer if time permits |
 | Phase 7 - UI & Demo Polish | 10-12 | Stable Streamlit demo interface |

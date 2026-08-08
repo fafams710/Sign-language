@@ -63,9 +63,9 @@ Vocabulary & Scope Lock
   -> Landmark Extraction      (MediaPipe)
   -> Preprocessing            (normalize, pad/trim, fixed-length sequences)   [implemented]
   -> Train / Val / Test Split (70 / 15 / 15)                                  [implemented]
-  -> Model Training           (LSTM / GRU / 1D CNN / MLP)
+  -> Model Training           (LSTM / GRU / 1D CNN / MLP)                      [implemented]
   -> Evaluation               (accuracy, F1, confusion matrix, latency)
-  -> Export Trained Model     (sign_classifier.pt, label_encoder.pkl)
+  -> Export Trained Model     (self-describing sign_classifier.pt checkpoint)  [implemented]
 ```
 
 The preprocessing and split steps are implemented in `src/preprocess.py`: it reads a
@@ -74,7 +74,8 @@ folder name matching `VOCABULARY`), reuses the wrist-relative normalization from
 `src/landmarks.py`, builds fixed-length sequences (`SEQUENCE_LENGTH = 30` frames, with
 center-trim when longer and edge-repeat post-pad when shorter), and produces a reproducible
 70/15/15 train/val/test split (seed 42, stratified with a non-stratified fallback for very
-small classes). Model training, inference, and grammar are still stubs.
+small classes). Model training is implemented in `src/train.py`; inference (`predict.py`)
+and grammar (`grammar.py`) are still stubs.
 
 ---
 
@@ -133,18 +134,19 @@ rt-to-asl-fafams/
     camera.py                 # webcam capture / frame loop     (implemented)
     landmarks.py              # MediaPipe HandLandmarker wrapper (implemented)
     preprocess.py             # normalization, sequence preparation (implemented)
-    train.py                  # model training                  (stub)
+    train.py                  # model training (LSTM/GRU/CNN/MLP) (implemented)
     predict.py                # real-time inference, smoothing  (stub)
     grammar.py                # rule-based sentence generation  (stub)
     utils.py                  # shared helpers + VOCABULARY (source of truth)
   tests/
     test_preprocess.py        # preprocessing unit tests
+    test_train.py             # training-pipeline unit tests
   tools/
     capture_demo.py           # interactive landmark capture/record viewer
   models/
     hand_landmarker.task      # user-provided MediaPipe asset   (gitignored)
-    sign_classifier.pt        # trained model                   (gitignored)
-    label_encoder.pkl         # label encoder                   (gitignored)
+    sign_classifier.pt        # trained model (self-describing)  (gitignored)
+    label_encoder.pkl         # optional VOCABULARY-order list   (gitignored)
   reports/
     figures/
     confusion_matrix.png
@@ -154,13 +156,16 @@ rt-to-asl-fafams/
     final_report.tex
 ```
 
-> Phase 0 (scaffold) and Phase 1 (webcam + landmark prototype) are complete, and Phase 2
-> (the preprocessing pipeline) is implemented: `src/camera.py`, `src/landmarks.py`,
-> `src/preprocess.py`, `benchmark.py`, and `tools/capture_demo.py` carry working logic,
-> with `tests/test_preprocess.py` covering the preprocessing pipeline. Modules marked
-> *(stub)* (`train.py`, `predict.py`, `grammar.py`, `app.py`) are docstrings/TODOs only and
-> land in later phases. The MediaPipe binary `models/hand_landmarker.task` is user-provided
-> and not committed.
+> Phase 0 (scaffold) and Phase 1 (webcam + landmark prototype) are complete, Phase 2
+> (the preprocessing pipeline) is implemented, and Phase 3 (the baseline classifier) is
+> implemented: `src/camera.py`, `src/landmarks.py`, `src/preprocess.py`, `src/train.py`,
+> `benchmark.py`, and `tools/capture_demo.py` carry working logic, with
+> `tests/test_preprocess.py` and `tests/test_train.py` covering the preprocessing and
+> training pipelines. `src/train.py` is complete ahead of the still-in-progress dataset
+> collection, so it runs end-to-end on a minimal dataset. Modules marked *(stub)*
+> (`predict.py`, `grammar.py`, `app.py`) are docstrings/TODOs only and land in later
+> phases. The MediaPipe binary `models/hand_landmarker.task` is user-provided and not
+> committed.
 
 ---
 
@@ -171,7 +176,7 @@ rt-to-asl-fafams/
 | 1 | Setup & scope lock | Final vocabulary, repository, architecture diagram, schedule |
 | 1-2 | Webcam & landmark prototype | Real-time hand landmark detection |
 | 2-4 | Dataset collection | Custom dataset + preprocessing pipeline |
-| 4-6 | Baseline classifier | First trained sign-recognition model |
+| 4-6 | Baseline classifier (implemented) | First trained sign-recognition model |
 | 6-8 | Real-time prediction | Webcam-to-sign prediction integration |
 | 8-9 | Text buffer + rule-based grammar | Recognized tokens + rule-based English sentences |
 | 9-10 | Grammar refinement (LLM optional, future) | Improved sentence templates; LLM layer if time permits |
