@@ -240,7 +240,7 @@ Current `requirements.txt`: `opencv-python`, `mediapipe`, `numpy`, `pandas`,
 
 ---
 
-## Team Roles (Five-Person Team)
+## Team Roles (Three-Person Team)
 
 | Role | Responsibilities |
 |---|---|
