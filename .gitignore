@@ -33,3 +33,6 @@ DO NOT PUSH, DATA/
 
 # Captured / benchmark landmark output
 captured_landmarks/
+
+# Ignore Claude
+.claude/
